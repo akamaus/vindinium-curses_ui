@@ -88,4 +88,7 @@ class ConvNet:
         dirWeights = sess.run(y_conv)
         return dirWeights
 
-print(ConvNet.calculateDecisions(""))
+if __name__ == "__main__":
+    w = ConvNet.calculateDecisions("")
+    print(w)
+    print(w.argmax(1))

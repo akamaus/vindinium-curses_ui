@@ -8,7 +8,8 @@
 ########################################################################
 
 import random
-
+from mapConverter import MapConverter
+from convNet import ConvNet
 
 class AI:
     """Pure random A.I, you may NOT use it to win ;-)"""
@@ -60,13 +61,13 @@ class AI:
         path_to_goal = []
         dirs = ["North", "East", "South", "West", "Stay"]
 
-        for y in range(self.game.board_size):
-            for x in range(self.game.board_size):
-                if (y, x) not in self.game.walls_locs or \
-                        (y, x) not in self.game.taverns_locs or \
-                        (y, x) not in self.game.mines_locs:
-
-                    walkable.append((y, x))
+        # for y in range(self.game.board_size):
+        #     for x in range(self.game.board_size):
+        #         if (y, x) not in self.game.walls_locs or \
+        #                 (y, x) not in self.game.taverns_locs or \
+        #                 (y, x) not in self.game.mines_locs:
+        #
+        #             walkable.append((y, x))
 
         # With such a random path, path highlighting would
         # display a random continuous line of red bullets over the map.
@@ -84,7 +85,9 @@ class AI:
                     first_cell = walkable[i]
                     break
 
-        hero_move = random.choice(dirs)
+        dirWeights = ConvNet.calculateDecisions(MapConverter.convertMap(self.game))
+        hero_move = dirs[dirWeights.argmax(1)]
+        # hero_move = random.choice(dirs)
         action = random.choice(actions)
         decision = decisions[action]
         nearest_enemy_pos = random.choice(self.game.heroes).pos
