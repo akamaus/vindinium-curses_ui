@@ -14,7 +14,7 @@ from convNet import ConvNet
 class AI:
     """Pure random A.I, you may NOT use it to win ;-)"""
     def __init__(self):
-        pass
+        self.net = ConvNet()
 
     def process(self, game):
         """Do whatever you need with the Game object game"""
@@ -74,19 +74,19 @@ class AI:
         first_cell = self.game.hero.pos
         path_to_goal.append(first_cell)
 
-        for i in range(int(round(random.random()*self.game.board_size))):
-            for i in range(len(walkable)):
-                random.shuffle(walkable)
-                if (walkable[i][0] - first_cell[0] == 1 and
-                        walkable[i][1] - first_cell[1] == 0) or \
-                        (walkable[i][1] - first_cell[1] == 1 and
-                        walkable[i][0] - first_cell[0] == 0):
-                    path_to_goal.append(walkable[i])
-                    first_cell = walkable[i]
-                    break
+        # for i in range(int(round(random.random()*self.game.board_size))):
+        #     for i in range(len(walkable)):
+        #         random.shuffle(walkable)
+        #         if (walkable[i][0] - first_cell[0] == 1 and
+        #                 walkable[i][1] - first_cell[1] == 0) or \
+        #                 (walkable[i][1] - first_cell[1] == 1 and
+        #                 walkable[i][0] - first_cell[0] == 0):
+        #             path_to_goal.append(walkable[i])
+        #             first_cell = walkable[i]
+        #             break
 
-        dirWeights = ConvNet.calculateDecisions(MapConverter.convertMap(self.game))
-        hero_move = dirs[dirWeights.argmax(1)]
+        dirWeights = self.net.calculateDecisions(MapConverter.convertMap(self.game))
+        hero_move = dirs[dirWeights.argmax(1)[0]]
         # hero_move = random.choice(dirs)
         action = random.choice(actions)
         decision = decisions[action]

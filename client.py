@@ -37,7 +37,7 @@ class Client:
         self.bot = Curses_ui_bot()  # Our bot
         self.states = []
         self.delay = 0.5  # Delay in s between turns in replay mode
-        self.victory = 0 
+        self.victory = 0
         self.time_out = 0
 
     def pprint(self, *args, **kwargs):
@@ -71,7 +71,7 @@ class Client:
         """Load saved config from file ~/.vindinium/config"""
         config_parser = ConfigParser.ConfigParser()
         user_home_dir = os.path.expanduser("~")
-        config_file_name = os.path.join(user_home_dir, ".vindinium", "config")
+        config_file_name = os.path.join(user_home_dir, ".vindinium", "tf_bot_config")
         try:
             if os.path.isfile(config_file_name):
                 config_parser.read(config_file_name)
@@ -90,7 +90,7 @@ class Client:
         """Save config to file in ~/.vindinium/config"""
         config_parser = ConfigParser.ConfigParser()
         user_home_dir = os.path.expanduser("~")
-        config_file_name = os.path.join(user_home_dir, ".vindinium", "config")
+        config_file_name = os.path.join(user_home_dir, ".vindinium", "tf_bot_config")
         try:
             if not os.path.isdir(os.path.join(user_home_dir, ".vindinium")):
                 os.makedirs(os.path.join(user_home_dir, ".vindinium"))
@@ -146,9 +146,9 @@ class Client:
     def download_game_file(self, game_file_url):
         # I will treat no other forbidden char than space char.
         game_file_url = game_file_url.replace(" ", "%20")
-        # 
+        #
         # FIXME :
-        # 
+        #
         # Game file available online at http://vindinium.org/events/<gameId>
         # are not parsable by ast.literal_eval() ????
         #
@@ -162,7 +162,7 @@ class Client:
         #
         # MUST TRY:
         # games=[json.loads(line[6:]) for line in requests.get(game_file_url).content.splitlines() if line.startswith("data: ")]
-        #           
+        #
         self.gui.quit_ui()
         os.system('cls' if os.name == 'nt' else 'clear')
         print "********************************************************"
@@ -174,7 +174,7 @@ class Client:
             time.sleep(1)
         self.start_ui()
 
-    def start_ui(self):
+    def start_ui(self, choice = '0'):
         """Start the curses UI"""
         self.bot = Curses_ui_bot()
         self.running = True
@@ -182,7 +182,8 @@ class Client:
         self.states = []
         self.state = None
         self.gui = ui.tui()
-        choice = self.gui.ask_main_menu()
+        if choice == '0':
+            choice = self.gui.ask_main_menu()
         if choice == '1':
             # Load config then play game
             self.load_config()

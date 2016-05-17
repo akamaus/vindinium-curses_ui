@@ -1,5 +1,6 @@
 
 import json
+import time
 from game import Game
 
 NEUTRAL = 0
@@ -70,13 +71,17 @@ class MapConverter:
         return d3
 
 if __name__ == "__main__":
-    with open('exampleMap.json') as data_file:
-        data = json.load(data_file)
+    for i in range(60):
+        start_time = time.time()
 
-    gameobj = Game(data)
-    d3 = MapConverter.convertMap(gameobj)
-    for layer in range(len(d3)):
-        print("Layer ", layer)
-        for row in range(len(d3[layer])):
-            print d3[layer][row]
+        with open('exampleMap.json') as data_file:
+            data = json.load(data_file)
+
+        gameobj = Game(data)
+        d3 = MapConverter.convertMap(gameobj)
+        # for layer in range(len(d3)):
+        #     print("Layer ", layer)
+        #     for row in range(len(d3[layer])):
+        #         print d3[layer][row]
+        print("%d --- %s seconds ---" % (i, time.time() - start_time))
 
