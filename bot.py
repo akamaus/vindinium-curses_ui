@@ -4,6 +4,7 @@
 
 from game import Game
 import ai
+from randomai import RandomAI
 
 
 DIRS = ["North", "East", "South", "West", "Stay"]
@@ -33,12 +34,12 @@ class Curses_ui_bot:
         self.last_nearest_tavern_pos = None
         self.last_pos = None
         # The A.I, Skynet's rising !
-        self.ai = ai.AI()
+        self.ai = RandomAI()
 
     def move(self, state):
         """Return store data provided by A.I
         and return selected move"""
-        self.state = state        
+        self.state = state
         # Store status for later report
         try:
             self.hero_last_move = self.hero_move
