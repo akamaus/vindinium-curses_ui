@@ -3,8 +3,10 @@
 
 
 from game import Game
-import ai
+from ai import AI
 from randomai import RandomAI
+from reflexai import ReflexAI
+from expectimaxai import ExpectiMaxAI
 
 
 DIRS = ["North", "East", "South", "West", "Stay"]
@@ -13,7 +15,8 @@ ACTIONS = ["Go mine", "Go beer", "Go enemy"]
 
 class Curses_ui_bot:
     """THis is your bot"""
-    def __init__(self):
+    def __init__(self, ai_type):
+        self.ai = RandomAI()
         self.running = True
         self.state = {}
         self.game = None
@@ -34,7 +37,14 @@ class Curses_ui_bot:
         self.last_nearest_tavern_pos = None
         self.last_pos = None
         # The A.I, Skynet's rising !
-        self.ai = RandomAI()
+        if ai_type == 'tf':
+            self.ai = AI()
+        elif ai_type == 'reflex':
+            self.ai = ReflexAI()
+        elif ai_type == 'expectimax':
+            self.ai == ExpectiMaxAI()
+        else:
+            self.ai == RandomAI()
 
     def move(self, state):
         """Return store data provided by A.I

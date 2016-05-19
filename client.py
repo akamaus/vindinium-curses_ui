@@ -27,6 +27,7 @@ class Config:
 
 class Client:
     def __init__(self):
+        self.ai_type = 'tf'
         self.start_time = None
         self.gui = None
         self.session = None
@@ -34,7 +35,7 @@ class Client:
         self.running = True
         self.game_url = None
         self.config = Config()
-        self.bot = Curses_ui_bot()  # Our bot
+        self.bot = Curses_ui_bot(self.ai_type)  # Our bot
         self.states = []
         self.delay = 0.5  # Delay in s between turns in replay mode
         self.victory = 0
@@ -67,11 +68,11 @@ class Client:
         else:
             print printable
 
-    def load_config(self):
+    def load_config(self, ai_type):
         """Load saved config from file ~/.vindinium/config"""
         config_parser = ConfigParser.ConfigParser()
         user_home_dir = os.path.expanduser("~")
-        config_file_name = os.path.join(user_home_dir, ".vindinium", "tf_bot_config")
+        config_file_name = os.path.join(user_home_dir, ".vindinium", ai_type + "_config")
         try:
             if os.path.isfile(config_file_name):
                 config_parser.read(config_file_name)
@@ -86,11 +87,11 @@ class Client:
             print "Error while loading config file", config_file_name, ":", e
             quit(1)
 
-    def save_config(self):
+    def save_config(self, ai_type):
         """Save config to file in ~/.vindinium/config"""
         config_parser = ConfigParser.ConfigParser()
         user_home_dir = os.path.expanduser("~")
-        config_file_name = os.path.join(user_home_dir, ".vindinium", "tf_bot_config")
+        config_file_name = os.path.join(user_home_dir, ".vindinium", ai_type + "_config")
         try:
             if not os.path.isdir(os.path.join(user_home_dir, ".vindinium")):
                 os.makedirs(os.path.join(user_home_dir, ".vindinium"))
@@ -101,7 +102,7 @@ class Client:
                 config_parser.write(config_file)
         except (IOError, ConfigParser.Error) as e:
             self.gui.quit_ui()
-            print "Error  while saving config file", config_file_name, ":", e
+            print "Error while saving config file", config_file_name, ":", e
             quit(1)
 
     def load_game(self, game_file_name):
@@ -176,7 +177,7 @@ class Client:
 
     def start_ui(self, choice = '0'):
         """Start the curses UI"""
-        self.bot = Curses_ui_bot()
+        self.bot = Curses_ui_bot(self.ai_type)
         self.running = True
         self.game_url = None
         self.states = []
@@ -186,7 +187,7 @@ class Client:
             choice = self.gui.ask_main_menu()
         if choice == '1':
             # Load config then play game
-            self.load_config()
+            self.load_config(self.ai_type)
             self.gui.draw_game_windows()
             self.play()
         elif choice == '2':
@@ -207,7 +208,7 @@ class Client:
             self.config.server_url = self.gui.ask_server_url(self.config.game_mode)
             self.config.key = self.gui.ask_key(self.config.game_mode)
             if self.gui.ask_save_config():
-                self.save_config()
+                self.save_config(self.ai_type)
             if self.gui.ask_play_game():
                 self.gui.draw_game_windows()
                 self.play()
@@ -265,7 +266,7 @@ class Client:
     def replay(self):
         """Replay last game"""
         # Restart with a new bot
-        self.bot = Curses_ui_bot()
+        self.bot = Curses_ui_bot(self.ai_type)
         for i in range(self.config.number_of_games):
             # start a new game
             if self.bot.running:
@@ -285,7 +286,7 @@ class Client:
         # Delete prévious game states
         self.states = []
         # Restart game with brand new bot
-        self.bot = Curses_ui_bot()
+        self.bot = Curses_ui_bot(self.ai_type)
         # Default move is no move !
         direction = "Stay"
         # Create a requests session that will be used throughout the game
