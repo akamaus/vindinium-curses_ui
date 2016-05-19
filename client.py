@@ -27,7 +27,7 @@ class Config:
 
 class Client:
     def __init__(self):
-        self.ai_type = 'tf'
+        self.ai_type = 'random'
         self.start_time = None
         self.gui = None
         self.session = None
@@ -72,37 +72,62 @@ class Client:
         """Load saved config from file ~/.vindinium/config"""
         config_parser = ConfigParser.ConfigParser()
         user_home_dir = os.path.expanduser("~")
-        config_file_name = os.path.join(user_home_dir, ".vindinium", ai_type + "_config")
+
+        common_config_file_name = os.path.join(user_home_dir, ".vindinium", "common_config")
         try:
-            if os.path.isfile(config_file_name):
-                config_parser.read(config_file_name)
+            if os.path.isfile(common_config_file_name):
+                config_parser.read(common_config_file_name)
                 self.config.server_url = config_parser.get("game", "server_url")
                 self.config.game_mode = config_parser.get("game", "game_mode")
                 self.config.map_name = config_parser.get("game", "map_name")
-                self.config.key = config_parser.get("game", "key")
                 self.config.number_of_games = config_parser.getint("game", "number_of_games")
                 self.config.number_of_turns = config_parser.getint("game", "number_of_turns")
         except (IOError, ConfigParser.Error) as e:
             self.gui.quit_ui()
-            print "Error while loading config file", config_file_name, ":", e
+            print "Error while loading config file", common_config_file_name, ":", e
+            quit(1)
+
+        bot_config_file_name = os.path.join(user_home_dir, ".vindinium", ai_type + "_config")
+        try:
+            if os.path.isfile(bot_config_file_name):
+                config_parser.read(bot_config_file_name)
+                self.config.key = config_parser.get("game", "key")
+        except (IOError, ConfigParser.Error) as e:
+            self.gui.quit_ui()
+            print "Error while loading config file", bot_config_file_name, ":", e
             quit(1)
 
     def save_config(self, ai_type):
         """Save config to file in ~/.vindinium/config"""
         config_parser = ConfigParser.ConfigParser()
         user_home_dir = os.path.expanduser("~")
-        config_file_name = os.path.join(user_home_dir, ".vindinium", ai_type + "_config")
+
+        common_config_file_name = os.path.join(user_home_dir, ".vindinium", "common_config")
         try:
             if not os.path.isdir(os.path.join(user_home_dir, ".vindinium")):
                 os.makedirs(os.path.join(user_home_dir, ".vindinium"))
             config_parser.add_section("game")
-            with open(config_file_name, "w") as config_file:
+            with open(common_config_file_name, "w") as config_file:
                 for key, value in self.config.__dict__.items():
-                    config_parser.set("game", key, value)
+                    if not key == 'key':
+                        config_parser.set("game", key, value)
                 config_parser.write(config_file)
         except (IOError, ConfigParser.Error) as e:
             self.gui.quit_ui()
-            print "Error while saving config file", config_file_name, ":", e
+            print "Error while saving config file", common_config_file_name, ":", e
+            quit(1)
+
+        bot_config_file_name = os.path.join(user_home_dir, ".vindinium", ai_type + "_config")
+        try:
+            if not os.path.isdir(os.path.join(user_home_dir, ".vindinium")):
+                os.makedirs(os.path.join(user_home_dir, ".vindinium"))
+            config_parser.add_section("game")
+            with open(bot_config_file_name, "w") as config_file:
+                config_parser.set("game", 'key', self.config.key)
+                config_parser.write(config_file)
+        except (IOError, ConfigParser.Error) as e:
+            self.gui.quit_ui()
+            print "Error while saving config file", bot_config_file_name, ":", e
             quit(1)
 
     def load_game(self, game_file_name):
@@ -487,16 +512,21 @@ class Client:
             self.gui.display_elapsed(elapsed)
             self.gui.refresh()
 
-if __name__ == "__main__":
-    client = Client()
-    if len(sys.argv) == 1:
-        # Go for interactive setup
-        client.start_ui()
-    elif len(sys.argv) < 3 or sys.argv[1] == "--help":
+    @staticmethod
+    def print_help(self):
         print "Usage: %s <key> <[training|arena]> <number-of-games|number-of-turns> [server-url]" % (sys.argv[0])
         print "or: %s " % (sys.argv[0])
         print 'Example: %s mySecretKey training 20' % (sys.argv[0])
         exit(0)
+
+if __name__ == "__main__":
+    client = Client()
+    if len(sys.argv) == 2:
+        # Go for interactive setup
+        client.ai_type = sys.argv[1]
+        client.start_ui()
+    elif len(sys.argv) < 3 or sys.argv[1] == "--help":
+        Client.print_help()
     elif len(sys.argv) > 3:
         client.config.key = sys.argv[1]
         client.config.game_mode = sys.argv[2]
