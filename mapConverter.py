@@ -1,5 +1,6 @@
 
 import json
+import numpy
 import time
 from game import Game
 
@@ -36,39 +37,39 @@ class MapConverter:
             else:
                 ownersDict[h.bot_id] = ENEMY
 
-        d3 = [[[0 for col in range(gameobj.board_size)] for row in range(gameobj.board_size)] for x in range(2)]
+        state = numpy.zeros((gameobj.board_size, gameobj.board_size, 2))
 
         # Mark Mines
         for pos, owner in gameobj.mines.iteritems():
             if owner == "-":
                 owner = NEUTRAL
             owner = int(owner)
-            d3[0][pos[0]][pos[1]] = MINE
-            d3[1][pos[0]][pos[1]] = ownersDict[owner]
+            state[pos[0]][pos[1]][0] = MINE
+            state[pos[0]][pos[1]][1] = ownersDict[owner]
 
         # Mark Spawn Points
         for pos, owner in gameobj.spawn_points_locs.iteritems():
-            d3[0][pos[0]][pos[1]] = SPAWNPOINT
-            d3[1][pos[0]][pos[1]] = ownersDict[owner]
+            state[pos[0]][pos[1]][0] = SPAWNPOINT
+            state[pos[0]][pos[1]][1] = ownersDict[owner]
 
         # Mark Terrain
         for pos in gameobj.walls_locs:
-            d3[0][pos[0]][pos[1]] = TERRAIN
-            d3[1][pos[0]][pos[1]] = NEUTRAL
+            state[pos[0]][pos[1]][0] = TERRAIN
+            state[pos[0]][pos[1]][1] = NEUTRAL
 
         # Mark Taverns
         for pos in gameobj.taverns_locs:
-            d3[0][pos[0]][pos[1]] = TAVERN
-            d3[1][pos[0]][pos[1]] = NEUTRAL
+            state[pos[0]][pos[1]][0] = TAVERN
+            state[pos[0]][pos[1]][1] = NEUTRAL
 
         # Mark Heroes
         for i in range(len(gameobj.heroes)):
             pos = gameobj.heroes[i].pos
             owner = gameobj.heroes[i].bot_id
-            d3[0][pos[0]][pos[1]] = HERO
-            d3[1][pos[0]][pos[1]] = ownersDict[owner]
+            state[pos[0]][pos[1]][0] = HERO
+            state[pos[0]][pos[1]][1] = ownersDict[owner]
 
-        return d3
+        return state
 
 if __name__ == "__main__":
     for i in range(60):
