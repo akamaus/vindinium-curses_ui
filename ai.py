@@ -18,6 +18,7 @@ import math
 
 EXAMPLE_MAP_SIZE = 16
 UI_FORMATTING_STRING = "%0.3f"
+EXPLORATION_PROBABILITY = 0.7
 
 class AI:
     """Pure random A.I, you may NOT use it to win ;-)"""
@@ -28,6 +29,7 @@ class AI:
         self.reward = 0
         self.prev_state = None
         self._dirs = ["North", "East", "South", "West", "Stay"]
+        random.seed()
 
     def process(self, game):
         """Do whatever you need with the Game object game"""
@@ -78,13 +80,9 @@ class AI:
           7 - nearest_tavern_pos:
                  A tuple containing the nearest enenmy position (see above)"""
 
-        decisions = {'mine': [("Mine", 30), ('Fight', 10), ('Tavern', 5)],
-                    'tavern': [("Mine", 10), ('Fight', 10), ('Tavern', 50)],
-                    'fight': [("Mine", 15), ('Fight', 30), ('Tavern', 10)]}
+        forced_exploration = random.uniform(0.0, 1.0) < EXPLORATION_PROBABILITY
 
         path_to_goal = []
-
-
         first_cell = self.game.hero.pos
         path_to_goal.append(first_cell)
 
@@ -97,7 +95,7 @@ class AI:
             ("Stay", UI_FORMATTING_STRING % dirWeights[4])
         ]
 
-        if len(self.transitions) < convNet.TRAINING_BATCH_SIZE:
+        if len(self.transitions) < convNet.TRAINING_BATCH_SIZE or forced_exploration:
             self.hero_move = random.choice(self._dirs)
         else:
             self.hero_move = self._dirs[dirWeights.argmax(0)]
@@ -107,7 +105,7 @@ class AI:
         nearest_tavern_pos = (0, 0)  # random.choice(self.game.mines_locs)
 
         return (path_to_goal,
-                "",
+                "explore" if forced_exploration else "",
                 decision,
                 self.hero_move,
                 nearest_enemy_pos,
@@ -138,7 +136,7 @@ if __name__ == "__main__":
     gameobj = Game(data)
 
     ai = AI()
-    for i in range(20):
+    for i in range(250):
         ai.process(gameobj)
         ai.decide()
         ai.post_process()
