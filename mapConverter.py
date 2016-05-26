@@ -4,18 +4,10 @@ import numpy
 import time
 from game import Game
 
-NEUTRAL = 0
-OWNED = 1
-ENEMY = 2
-MASTER = 3
-SERVANT = 4
 
-EMPTY = 0
-TAVERN = 1
-HERO = 2
-SPAWNPOINT = 3
-MINE = 4
-TERRAIN = 5
+NEUTRAL, OWNED, ENEMY, MASTER, SERVANT = numpy.arange(5) / 5
+
+EMPTY, TAVERN, HERO, SPAWNPOINT, MINE, TERRAIN = numpy.arange(6) / 6
 
 class MapConverter:
     @staticmethod

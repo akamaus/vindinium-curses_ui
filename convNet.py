@@ -21,7 +21,7 @@ FINAL_FEATURES = 1024
 
 GAMMA = 0.6
 
-TRAINING_BATCH_SIZE = 15
+TRAINING_BATCH_SIZE = 100
 
 
 def weight_variable(shape):
@@ -136,6 +136,7 @@ class ConvNet:
 
 if __name__ == "__main__":
     net = ConvNet()
+    forma = "%0.4f"
     for i in range(50):
         start_time = time.time()
         state = numpy.random.random_integers(0, 5, (MAX_MAP_SIZE, MAX_MAP_SIZE, 2))
@@ -143,7 +144,7 @@ if __name__ == "__main__":
         w = net.calculateDecisions(state)
         # print(w)
         # print(w.argmax(1))
-        print(w[0], w[1], w[2], w[3], w[4])
-        print("%d --- %s seconds --- %s" % (i, time.time() - start_time, w.argmax(0)))
+        print(forma % w[0], forma % w[1], forma % w[2], forma % w[3], forma % w[4])
+        print("%d --- %0.4f seconds --- %s" % (i, time.time() - start_time, w.argmax(0)))
         time.sleep(0.25)
 
