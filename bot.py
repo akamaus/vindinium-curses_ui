@@ -102,4 +102,3 @@ class Curses_ui_bot:
             # First move has no previous move and no game
             pass
         self.game = Game(self.state)
-        

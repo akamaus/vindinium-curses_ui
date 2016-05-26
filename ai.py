@@ -6,12 +6,13 @@
 # Pure random A.I, you may NOT use it to win ;-)
 #
 ########################################################################
-
+import json
 import random
 import numpy
 import mapConverter
 from collections import deque
 from mapConverter import MapConverter
+from game import Game
 import convNet
 import math
 
@@ -26,6 +27,7 @@ class AI:
         self.transitions = deque()
         self.reward = 0
         self.prev_state = None
+        self._dirs = ["North", "East", "South", "West", "Stay"]
 
     def process(self, game):
         """Do whatever you need with the Game object game"""
@@ -81,7 +83,7 @@ class AI:
                     'fight': [("Mine", 15), ('Fight', 30), ('Tavern', 10)]}
 
         path_to_goal = []
-        dirs = ["North", "East", "South", "West", "Stay"]
+
 
         first_cell = self.game.hero.pos
         path_to_goal.append(first_cell)
@@ -94,7 +96,11 @@ class AI:
             ("West", UI_FORMATTING_STRING % dirWeights[3]),
             ("Stay", UI_FORMATTING_STRING % dirWeights[4])
         ]
-        self.hero_move = dirs[dirWeights.argmax(0)]
+
+        if len(self.transitions) < convNet.TRAINING_BATCH_SIZE:
+            self.hero_move = random.choice(self._dirs)
+        else:
+            self.hero_move = self._dirs[dirWeights.argmax(0)]
 
         nearest_enemy_pos = (0, 0)   # random.choice(self.game.heroes).pos
         nearest_mine_pos = (0, 0)    # random.choice(self.game.mines_locs)
@@ -114,13 +120,27 @@ class AI:
             self.transitions.append(transition)
 
     def post_process(self):
-        self.reward = self._calculate_reward
+        self.reward = self._calculate_reward()
         self._save_transition()
         self.prev_state = self.state
-        self.prev_action = self.hero_move
+        self.prev_action = numpy.zeros(len(self._dirs))
+        self.prev_action[self._dirs.index(self.hero_move)] = 1
+
+        if len(self.transitions) > convNet.TRAINING_BATCH_SIZE:
+            self.net.trainNetwork(self.transitions)
 
     def _calculate_reward(self):
-        return self.game.hero.gold
+        return self.game.hero.gold - self.reward
 
 if __name__ == "__main__":
-    pass
+    with open('exampleMap.json') as data_file:
+        data = json.load(data_file)
+    gameobj = Game(data)
+
+    ai = AI()
+    for i in range(20):
+        ai.process(gameobj)
+        ai.decide()
+        ai.post_process()
+        print("%d ---" % i)
+
