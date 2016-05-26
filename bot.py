@@ -78,6 +78,7 @@ class Curses_ui_bot:
             self.nearest_enemy_pos, \
             self.nearest_mine_pos, \
             self.nearest_tavern_pos = self.ai.decide()
+        self.ai.post_process()
 
         ################################################################
         # /AI

@@ -10,6 +10,7 @@
 import random
 import numpy
 import mapConverter
+from collections import deque
 from mapConverter import MapConverter
 import convNet
 import math
@@ -17,18 +18,23 @@ import math
 EXAMPLE_MAP_SIZE = 16
 UI_FORMATTING_STRING = "%0.3f"
 
-
 class AI:
     """Pure random A.I, you may NOT use it to win ;-)"""
     def __init__(self):
         self.net = convNet.ConvNet()
         self.net_move_probability = 0.7
+        self.transitions = deque()
+        self.reward = 0
+        self.prev_state = None
 
     def process(self, game):
         """Do whatever you need with the Game object game"""
         self.game = game
+        map = MapConverter.convertMap(self.game)
+        self.state = self.pad_map(map)
 
-    def pad_map(self, state):
+    @staticmethod
+    def pad_map(state):
         # state = numpy.random.random_integers(0, 5, (self.game.board_size, self.game.board_size, 2))
         shape = state.shape
         top_pad = int(math.ceil(float(-shape[0] + convNet.MAX_MAP_SIZE) / 2))
@@ -70,8 +76,6 @@ class AI:
           7 - nearest_tavern_pos:
                  A tuple containing the nearest enenmy position (see above)"""
 
-        actions = ['mine', 'tavern', 'fight']
-
         decisions = {'mine': [("Mine", 30), ('Fight', 10), ('Tavern', 5)],
                     'tavern': [("Mine", 10), ('Fight', 10), ('Tavern', 50)],
                     'fight': [("Mine", 15), ('Fight', 30), ('Tavern', 10)]}
@@ -82,9 +86,7 @@ class AI:
         first_cell = self.game.hero.pos
         path_to_goal.append(first_cell)
 
-        map = MapConverter.convertMap(self.game)
-        padded_map = self.pad_map(map)
-        dirWeights = self.net.calculateDecisions(padded_map)
+        dirWeights = self.net.calculateDecisions(self.state)
         decision = [
             ("North", UI_FORMATTING_STRING % dirWeights[0]),
             ("East", UI_FORMATTING_STRING % dirWeights[1]),
@@ -92,22 +94,33 @@ class AI:
             ("West", UI_FORMATTING_STRING % dirWeights[3]),
             ("Stay", UI_FORMATTING_STRING % dirWeights[4])
         ]
-        hero_move = dirs[dirWeights.argmax(0)]
-
-        action = random.choice(actions)
+        self.hero_move = dirs[dirWeights.argmax(0)]
 
         nearest_enemy_pos = (0, 0)   # random.choice(self.game.heroes).pos
         nearest_mine_pos = (0, 0)    # random.choice(self.game.mines_locs)
         nearest_tavern_pos = (0, 0)  # random.choice(self.game.mines_locs)
 
         return (path_to_goal,
-                action,
+                "",
                 decision,
-                hero_move,
+                self.hero_move,
                 nearest_enemy_pos,
                 nearest_mine_pos,
                 nearest_tavern_pos)
 
+    def _save_transition(self):
+        if not (self.prev_state is None):
+            transition = (self.prev_state, self.prev_action, self.reward, self.state)
+            self.transitions.append(transition)
+
+    def post_process(self):
+        self.reward = self._calculate_reward
+        self._save_transition()
+        self.prev_state = self.state
+        self.prev_action = self.hero_move
+
+    def _calculate_reward(self):
+        return self.game.hero.gold
 
 if __name__ == "__main__":
     pass
