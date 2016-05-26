@@ -97,15 +97,17 @@ class AI:
 
         if len(self.transitions) < convNet.TRAINING_BATCH_SIZE or forced_exploration:
             self.hero_move = random.choice(self._dirs)
+            action_description = "explore"
         else:
             self.hero_move = self._dirs[dirWeights.argmax(0)]
+            action_description = "convNet"
 
         nearest_enemy_pos = (0, 0)   # random.choice(self.game.heroes).pos
         nearest_mine_pos = (0, 0)    # random.choice(self.game.mines_locs)
         nearest_tavern_pos = (0, 0)  # random.choice(self.game.mines_locs)
 
         return (path_to_goal,
-                "explore" if forced_exploration else "",
+                action_description,
                 decision,
                 self.hero_move,
                 nearest_enemy_pos,
