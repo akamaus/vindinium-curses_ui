@@ -94,43 +94,46 @@ class ReflexAI:
             next_f = [now[0], now[1] - 1]
         else:
             next_f = now
-        enemy_mines = tuple(list(set(self.game.mines_locs) - set(self.game.hero.mines)))
 
-        #reward and punishment for geting away from closest mine
-        if (self.game.hero.life > 30) & (self.getDistance(now, self.getClosest(now, enemy_mines)) > \
-                self.getDistance(next_f, self.getClosest(next_f, enemy_mines))):
-            sc += 50
-        elif (self.game.hero.life > 30) & (self.getDistance(now, self.getClosest(now, enemy_mines)) < \
-                self.getDistance(next_f, self.getClosest(next_f, enemy_mines))):
-            sc -= 50
-
-
-        #reward for life restoring
-        if (self.game.hero.life < 30) & (self.getDistance(now, self.getClosest(now, self.game.taverns_locs)) > self.getDistance(next_f, self.getClosest(next_f, self.game.taverns_locs))):
-            sc += 50
-        if (self.game.hero.life < 30) & (self.getDistance(now, self.getClosest(now, self.game.taverns_locs)) < self.getDistance(next_f, self.getClosest(next_f, self.game.taverns_locs))):
-            sc -= 50
-
-        #punishment for running into wall
         t = tuple(next_f)
-        if ((t in self.game.walls_locs) | ((self.game.hero.life > 70) & (t in self.game.taverns_locs)) | (t in self.game.hero.mines)):
+        if ((t not in self.game.walls_locs) & (next_f[0] >= 0) &(next_f[0] < self.game.board_size) & (next_f[1] >= 0) &(next_f[1] < self.game.board_size)):
+            enemy_mines = tuple(list(set(self.game.mines_locs) - set(self.game.hero.mines)))
+
+            #reward and punishment for geting away from closest mine
+            if (self.game.hero.life > 30) & (self.getDistance(now, self.getClosest(now, enemy_mines)) > \
+                    self.getDistance(next_f, self.getClosest(next_f, enemy_mines))):
+                sc += 50
+            elif (self.game.hero.life > 30) & (self.getDistance(now, self.getClosest(now, enemy_mines)) < \
+                    self.getDistance(next_f, self.getClosest(next_f, enemy_mines))):
+                sc -= 50
+
+
+            #reward for life restoring
+            if (self.game.hero.life < 30) & (self.getDistance(now, self.getClosest(now, self.game.taverns_locs)) > self.getDistance(next_f, self.getClosest(next_f, self.game.taverns_locs))):
+                sc += 50
+            if (self.game.hero.life < 30) & (self.getDistance(now, self.getClosest(now, self.game.taverns_locs)) < self.getDistance(next_f, self.getClosest(next_f, self.game.taverns_locs))):
+                sc -= 50
+
+            #punishment for running into not penetrable
+            if (((self.game.hero.life > 70) & (t in self.game.taverns_locs)) | (t in self.game.hero.mines)):
+                sc = -1000
+
+            # reward distances between heroes
+            enemies = list()
+            for e in self.game.heroes:
+                if e.bot_id is not self.game.hero.bot_id:
+                    enemies.append(e)
+
+            if (((self.game.hero.life > enemies[0].life) & (t == enemies[0].pos)) | ((self.game.hero.life > enemies[1].life) & (t == enemies[1].pos)) | ((self.game.hero.life > enemies[2].life) & (t == enemies[2].pos))):
+                sc += 100
+            elif (((self.game.hero.life <= enemies[0].life) & (t == enemies[0].pos)) | ((self.game.hero.life <= enemies[1].life) & (t == enemies[1].pos)) | ((self.game.hero.life <= enemies[2].life) & (t == enemies[2].pos))):
+                sc -= 100
+
+            #punish staying in place
+            if next_move == "Stay":
+                sc -= 200
+        else:
             sc = -1000
-
-        # reward distances between heroes
-        enemies = list()
-        for e in self.game.heroes:
-            if e.bot_id is not self.game.hero.bot_id:
-                enemies.append(e)
-
-        if (((self.game.hero.life > enemies[0].life) & (t == enemies[0].pos)) | ((self.game.hero.life > enemies[1].life) & (t == enemies[1].pos)) | ((self.game.hero.life > enemies[2].life) & (t == enemies[2].pos))):
-            sc += 100
-        elif (((self.game.hero.life <= enemies[0].life) & (t == enemies[0].pos)) | ((self.game.hero.life <= enemies[1].life) & (t == enemies[1].pos)) | ((self.game.hero.life <= enemies[2].life) & (t == enemies[2].pos))):
-            sc -= 100
-
-        #punish staying in place
-        if next_move == "Stay":
-            sc -= 200
-
         return sc
 
     def post_process(self):
