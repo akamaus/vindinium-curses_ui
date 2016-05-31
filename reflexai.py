@@ -42,10 +42,10 @@ class ReflexAI:
         #p = Pathfinder(map)
         #path = p.find_route(self.game.hero.pos, goTo)
 
-        for j in range(0, 4, 1):
+        for j in range(0, 5, 1):
             next[j] = self.score(self.game.hero.pos, dirs[j])
 
-        hero_move = dirs[next.index(min(next))]
+        hero_move = dirs[next.index(max(next))]
 
         #path_to_goal = path
 
@@ -97,10 +97,10 @@ class ReflexAI:
         #reward and punishment for geting away from closest mine
         if self.getDistance(now, self.getClosest(now, self.game.mines_locs)) > \
                 self.getDistance(next_f, self.getClosest(next_f, self.game.mines_locs)):
-            sc += 10
+            sc += 40
         elif self.getDistance(now, self.getClosest(now, self.game.mines_locs)) < \
                 self.getDistance(next_f, self.getClosest(next_f, self.game.mines_locs)):
-            sc -= 10
+            sc -= 40
 
         #reward distances between heroes
 
@@ -111,7 +111,7 @@ class ReflexAI:
             sc -= 20
 
         if next_f in self.game.walls_locs:
-            sc = 0
+            sc = -1000
 
         if next_move == "Stay":
             sc -=30
