@@ -77,29 +77,24 @@ class ReflexAI:
         sc = 0
 
         if next_move == "North":
-            next_f = [now[0] + 1, now[1]]
+            next_f = [now[0] - 1, now[1]]
         elif next_move == "East":
             next_f = [now[0], now[1] + 1]
         elif next_move == "South":
-            next_f = [now[0] - 1, now[1]]
+            next_f = [now[0] + 1, now[1]]
         elif next_move == "West":
             next_f = [now[0], now[1] - 1]
         else:
             next_f = now
+        enemy_mines = tuple(list(set(self.game.mines_locs) - set(self.game.hero.mines)))
 
-        #punishment for runing into wall
-        
-
-        #little reward for being healthy
-        if self.game.hero.life > 30:
-            sc += 1
 
         #reward and punishment for geting away from closest mine
-        if self.getDistance(now, self.getClosest(now, self.game.mines_locs)) > \
-                self.getDistance(next_f, self.getClosest(next_f, self.game.mines_locs)):
+        if (self.game.hero.life > 30) & (self.getDistance(now, self.getClosest(now, enemy_mines)) > \
+                self.getDistance(next_f, self.getClosest(next_f, enemy_mines))):
             sc += 40
-        elif self.getDistance(now, self.getClosest(now, self.game.mines_locs)) < \
-                self.getDistance(next_f, self.getClosest(next_f, self.game.mines_locs)):
+        elif (self.game.hero.life > 30) & (self.getDistance(now, self.getClosest(now, enemy_mines)) < \
+                self.getDistance(next_f, self.getClosest(next_f, enemy_mines))):
             sc -= 40
 
         #reward distances between heroes
@@ -110,11 +105,13 @@ class ReflexAI:
         if (self.game.hero.life < 30) & (self.getDistance(now, self.getClosest(now, self.game.taverns_locs)) > self.getDistance(next_f, self.getClosest(next_f, self.game.taverns_locs))):
             sc -= 20
 
-        if next_f in self.game.walls_locs:
+        #punishment for runing into wall
+        t = tuple(next_f)
+        if ((t in self.game.walls_locs) | ((self.game.hero.life > 70) & (t in self.game.taverns_locs))):
             sc = -1000
 
         if next_move == "Stay":
-            sc -=30
+            sc -=100
 
         return sc
 
