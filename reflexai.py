@@ -97,10 +97,10 @@ class ReflexAI:
         #reward and punishment for geting away from closest mine
         if self.getDistance(now, self.getClosest(now, self.game.mines_locs)) > \
                 self.getDistance(next_f, self.getClosest(next_f, self.game.mines_locs)):
-            sc -= 10
+            sc += 10
         elif self.getDistance(now, self.getClosest(now, self.game.mines_locs)) < \
                 self.getDistance(next_f, self.getClosest(next_f, self.game.mines_locs)):
-            sc += 10
+            sc -= 10
 
         #reward distances between heroes
 
@@ -109,6 +109,13 @@ class ReflexAI:
             sc += 20
         if (self.game.hero.life < 30) & (self.getDistance(now, self.getClosest(now, self.game.taverns_locs)) > self.getDistance(next_f, self.getClosest(next_f, self.game.taverns_locs))):
             sc -= 20
+
+        if next_f in self.game.walls_locs:
+            sc = 0
+
+        if next_move == "Stay":
+            sc -=30
+
         return sc
 
     def post_process(self):
