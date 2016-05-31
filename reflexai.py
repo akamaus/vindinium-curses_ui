@@ -38,16 +38,11 @@ class ReflexAI:
             action = actions[2]
             decision = decisions[action]
 
-        #map = MapConverter.convertMap(self.game)
-        #p = Pathfinder(map)
-        #path = p.find_route(self.game.hero.pos, goTo)
 
         for j in range(0, 5, 1):
             next[j] = self.score(self.game.hero.pos, dirs[j])
 
         hero_move = dirs[next.index(max(next))]
-
-        #path_to_goal = path
 
         nearest_enemy_pos = random.choice(self.game.heroes).pos
         nearest_mine_pos = self.getClosest(self.game.hero.pos, self.game.mines_locs)
@@ -63,15 +58,28 @@ class ReflexAI:
 
     def getClosest(self, loc, location_list):
         min_local = self.game.board_size * self.game.board_size
-        for l in location_list:
-            if (math.fabs(l[0]-loc[0]) + math.fabs(l[1]-loc[1])) < min_local:
-                min_local = math.fabs(l[0] - loc[0]) + math.fabs(l[1] - loc[1])
-                min_local_pos = l
-        return min_local_pos
+        if location_list:
+            for l in location_list:
+                if (math.fabs(l[0]-loc[0]) + math.fabs(l[1]-loc[1])) < min_local:
+                    min_local = math.fabs(l[0] - loc[0]) + math.fabs(l[1] - loc[1])
+                    min_local_pos = l
+            return min_local_pos
+        else:
+            return min_local
 
     def getDistance(self, loc, l):
-        min_local = math.fabs(l[0] - loc[0]) + math.fabs(l[1] - loc[1])
-        return min_local
+        if l == self.game.board_size * self.game.board_size:
+            return l
+        else:
+            min_local = math.sqrt(math.pow(l[0] - loc[0], 2) + math.pow(l[1] - loc[1], 2))
+            return min_local
+
+    def getManhatanDistance(self, loc, l):
+        if l == self.game.board_size * self.game.board_size:
+            return l
+        else:
+            min_local = math.fabs(l[0] - loc[0]) + math.fabs(l[1] - loc[1])
+            return min_local
 
     def score(self, now, next_move):
         sc = 0
@@ -87,7 +95,6 @@ class ReflexAI:
         else:
             next_f = now
         enemy_mines = tuple(list(set(self.game.mines_locs) - set(self.game.hero.mines)))
-
 
         #reward and punishment for geting away from closest mine
         if (self.game.hero.life > 30) & (self.getDistance(now, self.getClosest(now, enemy_mines)) > \
@@ -115,9 +122,9 @@ class ReflexAI:
             if e.bot_id is not self.game.hero.bot_id:
                 enemies.append(e)
 
-        if ((self.game.hero.life > 30) & ((t == enemies[0].pos) | (t == enemies[1].pos) | (t == enemies[2].pos))):
+        if (((self.game.hero.life > enemies[0].life) & (t == enemies[0].pos)) | ((self.game.hero.life > enemies[1].life) & (t == enemies[1].pos)) | ((self.game.hero.life > enemies[2].life) & (t == enemies[2].pos))):
             sc += 100
-        elif ((self.game.hero.life <= 30) & ((t == enemies[0].pos) | (t == enemies[1].pos) | (t == enemies[2].pos))):
+        elif (((self.game.hero.life <= enemies[0].life) & (t == enemies[0].pos)) | ((self.game.hero.life <= enemies[1].life) & (t == enemies[1].pos)) | ((self.game.hero.life <= enemies[2].life) & (t == enemies[2].pos))):
             sc -= 100
 
         #punish staying in place
