@@ -23,26 +23,31 @@ class ReflexAI:
 
         #goTo = (random.choice(self.game.mines_locs))
 
-        if self.game.hero.life > 30:
-            first_cell = self.game.hero.pos
-            path_to_goal.append(first_cell)
+        first_cell = self.game.hero.pos
+        path_to_goal.append(first_cell)
 
-            action = random.choice(actions)
-            decision = decisions[action]
-        else:
-            first_cell = self.game.hero.pos
-            path_to_goal.append(first_cell)
-
-            #goTo = self.getClosest(self.game.hero.pos, self.game.taverns_locs)
-
-            action = actions[2]
-            decision = decisions[action]
-
+        action = actions[0]
 
         for j in range(0, 5, 1):
             next[j] = self.score(self.game.hero.pos, dirs[j])
 
         hero_move = dirs[next.index(max(next))]
+
+        now = self.game.hero.pos
+        enemy_mines = tuple(list(set(self.game.mines_locs) - set(self.game.hero.mines)))
+        goTo = self.getClosest(now, enemy_mines)
+        map = MapConverter.convertMap(self.game)
+        p = Pathfinder(map)
+        path = p.find_route(self.game.hero.pos, goTo)
+        path_to_goal = path
+        if (self.game.hero.bot_last_move is not None) :
+            if (((hero_move == "North") & ("South" == self.game.hero.bot_last_move)) |
+                    ((hero_move == "South") & ("North" == self.game.hero.bot_last_move)) |
+                    ((hero_move == "East") & ("West" == self.game.hero.bot_last_move)) |
+                    ((hero_move == "West") & ("East" == self.game.hero.bot_last_move))):
+                action = actions[1]
+
+        decision = decisions[action]
 
         nearest_enemy_pos = random.choice(self.game.heroes).pos
         nearest_mine_pos = self.getClosest(self.game.hero.pos, self.game.mines_locs)
