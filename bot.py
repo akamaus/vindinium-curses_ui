@@ -42,9 +42,9 @@ class Curses_ui_bot:
         elif ai_type == 'reflex':
             self.ai = ReflexAI()
         elif ai_type == 'expectimax':
-            self.ai == ExpectiMaxAI()
+            self.ai = ExpectiMaxAI()
         else:
-            self.ai == RandomAI()
+            self.ai = RandomAI()
 
     def move(self, state):
         """Return store data provided by A.I
@@ -78,6 +78,7 @@ class Curses_ui_bot:
             self.nearest_enemy_pos, \
             self.nearest_mine_pos, \
             self.nearest_tavern_pos = self.ai.decide()
+        self.ai.post_process()
 
         ################################################################
         # /AI
@@ -101,4 +102,3 @@ class Curses_ui_bot:
             # First move has no previous move and no game
             pass
         self.game = Game(self.state)
-        
