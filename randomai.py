@@ -38,3 +38,7 @@ class RandomAI:
                 nearest_enemy_pos,
                 nearest_mine_pos,
                 nearest_tavern_pos)
+
+
+    def post_process(self):
+        pass
