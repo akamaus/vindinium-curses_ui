@@ -14,6 +14,9 @@ class Node:
     def __repr__(self):
         return self.__str__()
 
+    def __getitem__(self, item):
+        return self.coordinates.__getitem__(item)
+
     def neighbours(self):
         directions = [(-1,0), (0,-1), (1,0), (0,1) ]
         neighs = []

@@ -13,7 +13,7 @@ class Hero:
         except KeyError:
             self.elo = 0
             self.user_id = 0
-            self.last_move = None
+            self.bot_last_move = None
 
         self.bot_id = hero['id']
         self.life = hero['life']

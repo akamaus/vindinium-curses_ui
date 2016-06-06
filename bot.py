@@ -42,9 +42,9 @@ class Curses_ui_bot:
         elif ai_type == 'reflex':
             self.ai = ReflexAI()
         elif ai_type == 'expectimax':
-            self.ai == ExpectiMaxAI()
+            self.ai = ExpectiMaxAI()
         else:
-            self.ai == RandomAI()
+            self.ai = RandomAI()
 
     def move(self, state):
         """Return store data provided by A.I
