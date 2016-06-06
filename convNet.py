@@ -130,7 +130,7 @@ class ConvNet:
                 self._target: agents_expected_reward},
                 session=self._session)
 
-            print('Trained')
+            #print('Trained')
             self.saver.save(self._session, "convNet/model.ckpt")
             self.step_counter += 1
         # L = pow(r + GAMMA*Q_table.max() + Qtable.max())/2

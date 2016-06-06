@@ -6,6 +6,7 @@
 # Pure random A.I, you may NOT use it to win ;-)
 #
 ########################################################################
+from __future__ import print_function
 import json
 import random
 import numpy
@@ -16,9 +17,11 @@ from game import Game
 import convNet
 import math
 
+
 EXAMPLE_MAP_SIZE = 16
 UI_FORMATTING_STRING = "%0.3f"
 EXPLORATION_PROBABILITY = 0.4
+TRAIN_EVERY_X_STEPS = 5
 
 class AI:
     """Pure random A.I, you may NOT use it to win ;-)"""
@@ -30,6 +33,7 @@ class AI:
         self.reward = 0
         self.prev_state = None
         self._dirs = ["North", "East", "South", "West", "Stay"]
+        self.step_counter = 0
         random.seed()
 
     def process(self, game):
@@ -94,9 +98,10 @@ class AI:
             ("South", UI_FORMATTING_STRING % dirWeights[2]),
             ("West", UI_FORMATTING_STRING % dirWeights[3]),
             ("Stay", UI_FORMATTING_STRING % dirWeights[4])
+            ("DB_Size", len(self.transitions))
         ]
 
-        if len(self.transitions) < convNet.TRAINING_BATCH_SIZE or forced_exploration:
+        if (len(self.transitions) < convNet.TRAINING_BATCH_SIZE) or forced_exploration:
             self.hero_move = random.choice(self._dirs)
             action_description = "explore"
         else:
@@ -120,14 +125,16 @@ class AI:
             transition = (self.prev_state, self.prev_action, self.reward, self.state)
             self.transitions.append(transition)
 
-    def post_process(self):
+    def post_process(self, print_debug):
         self.reward = self._calculate_reward()
         self._save_transition()
+        self.step_counter += 1
         self.prev_state = self.state
         self.prev_action = numpy.zeros(len(self._dirs))
         self.prev_action[self._dirs.index(self.hero_move)] = 1
 
-        if len(self.transitions) > convNet.TRAINING_BATCH_SIZE:
+        if (self.step_counter % TRAIN_EVERY_X_STEPS == 0) and len(self.transitions) > convNet.TRAINING_BATCH_SIZE:
+            print_debug("Training ...")
             self.net.trainNetwork(self.transitions)
 
     def _calculate_reward(self):
@@ -154,7 +161,7 @@ if __name__ == "__main__":
     ai = AI()
     for i in range(250):
         ai.process(gameobj)
-        ai.decide()
-        ai.post_process()
-        print("%d ---" % i)
+        answer = ai.decide()
+        ai.post_process(print)
+        print("%d --- %s" % (i, answer[1]))
 

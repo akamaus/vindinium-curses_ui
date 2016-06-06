@@ -227,7 +227,7 @@ class Client:
             elif choice == '2':
                 # Training mode config
                 self.config.game_mode = "training"
-                self.config.number_of_games = 1
+                self.config.number_of_games = self.gui.ask_number_games()
                 self.config.number_of_turns = self.gui.ask_number_turns()
                 self.config.map_name = "m"+str(self.gui.ask_map())
             self.config.server_url = self.gui.ask_server_url(self.config.game_mode)
@@ -270,6 +270,7 @@ class Client:
         """Play all games"""
         self.victory = 0
         self.time_out = 0
+        self.bot = Curses_ui_bot(self.ai_type)
         for i in range(self.config.number_of_games):
             # start a new game
             if self.bot.running:
@@ -311,7 +312,7 @@ class Client:
         # Delete prévious game states
         self.states = []
         # Restart game with brand new bot
-        self.bot = Curses_ui_bot(self.ai_type)
+        # self.bot = Curses_ui_bot(self.ai_type)
         # Default move is no move !
         direction = "Stay"
         # Create a requests session that will be used throughout the game
@@ -349,6 +350,7 @@ class Client:
                             self.save_game()
                     if self.bot.running:
                         direction = self.bot.move(self.state)
+                        self.bot.post_process(self.pprint)
                         self.display_game()
                 except Exception as e:
                     # Super error trap !

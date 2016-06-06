@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-
+from __future__ import print_function
+import json
+from collections import deque
 from game import Game
 from ai import AI
 from randomai import RandomAI
@@ -39,6 +40,8 @@ class Curses_ui_bot:
         # The A.I, Skynet's rising !
         if ai_type == 'tf':
             self.ai = AI()
+            self.transitions = deque()
+            self.ai.transitions = self.transitions
         elif ai_type == 'reflex':
             self.ai = ReflexAI()
         elif ai_type == 'expectimax':
@@ -78,7 +81,6 @@ class Curses_ui_bot:
             self.nearest_enemy_pos, \
             self.nearest_mine_pos, \
             self.nearest_tavern_pos = self.ai.decide()
-        self.ai.post_process()
 
         ################################################################
         # /AI
@@ -102,3 +104,18 @@ class Curses_ui_bot:
             # First move has no previous move and no game
             pass
         self.game = Game(self.state)
+
+    def post_process(self, print_debug):
+        if isinstance(self.ai, AI):
+            self.ai.post_process(print_debug)
+
+if __name__ == "__main__":
+    with open('exampleMap.json') as data_file:
+        data = json.load(data_file)
+    gameobj = Game(data)
+
+    bot = Curses_ui_bot('tf')
+    for i in range(250):
+        answer = bot.move(data)
+        bot.post_process(print)
+        print("%d ---" % (i))
