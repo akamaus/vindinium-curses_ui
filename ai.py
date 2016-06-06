@@ -18,11 +18,12 @@ import math
 
 EXAMPLE_MAP_SIZE = 16
 UI_FORMATTING_STRING = "%0.3f"
-EXPLORATION_PROBABILITY = 0.7
+EXPLORATION_PROBABILITY = 0.4
 
 class AI:
     """Pure random A.I, you may NOT use it to win ;-)"""
     def __init__(self):
+        self.prev_game = None
         self.net = convNet.ConvNet()
         self.net_move_probability = 0.7
         self.transitions = deque()
@@ -130,7 +131,20 @@ class AI:
             self.net.trainNetwork(self.transitions)
 
     def _calculate_reward(self):
-        return self.game.hero.gold - self.reward
+        if self.prev_game is None:
+            return 0
+        new_mines = self.game.hero.mine_count - self.prev_game.hero.mine_count
+        old_mines = self.prev_game.mine_count if new_mines >= 0 else 0
+        hp_half = 1 if self.game.hero.life >= 50 else 0
+        hp_less_than_20 = 20 - self.game.hero.life if self.game.hero.life < 20 else 0
+        hp_differece = self.prev_game.hero.life - self.game.hero.life
+
+        return sum(
+            (100 * new_mines,
+            old_mines,
+            hp_half,
+            hp_less_than_20)
+        )
 
 if __name__ == "__main__":
     with open('exampleMap.json') as data_file:
