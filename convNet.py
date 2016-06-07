@@ -21,8 +21,9 @@ FINAL_FEATURES = 1024
 
 GAMMA = 0.6
 
-TRAINING_BATCH_SIZE = 100
+TRAINING_BATCH_SIZE = 20
 
+CHECKPOINT_PATH = "convNet/model.ckpt"
 
 def weight_variable(shape, name):
     initial = tf.truncated_normal(shape, stddev=0.1)
@@ -86,8 +87,9 @@ class ConvNet:
         cost = tf.reduce_mean(tf.square(self._target - readout_action))
         self._train_operation = tf.train.AdamOptimizer(1e-6).minimize(cost)
 
-        self._session.run(tf.initialize_all_variables())
+        #self._session.run(tf.initialize_all_variables())
         self.saver = tf.train.Saver()
+        self.saver.restore(self._session, CHECKPOINT_PATH)
 
     def _train(self):
         pass
@@ -131,7 +133,7 @@ class ConvNet:
                 session=self._session)
 
             #print('Trained')
-            self.saver.save(self._session, "convNet/model.ckpt")
+            self.saver.save(self._session, CHECKPOINT_PATH)
             self.step_counter += 1
         # L = pow(r + GAMMA*Q_table.max() + Qtable.max())/2
         # error_vector = numpy.zeros(N_DIRECTIONS)
