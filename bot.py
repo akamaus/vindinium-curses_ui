@@ -38,14 +38,16 @@ class Curses_ui_bot:
         self.last_nearest_tavern_pos = None
         self.last_pos = None
         # The A.I, Skynet's rising !
-        if ai_type == 'tf':
+        if ai_type.startswith('tf'):
             self.ai = AI()
             self.transitions = deque()
             self.ai.transitions = self.transitions
-        elif ai_type == 'reflex':
+        elif ai_type.startswith('reflex'):
             self.ai = ReflexAI()
-        elif ai_type == 'expectimax':
+        elif ai_type.startswith('expectimax'):
             self.ai = ExpectiMaxAI()
+        elif ai_type.startswith('convnetteacher'):
+            self.ai = ConvNetTeacherAI()
         else:
             self.ai = RandomAI()
 
