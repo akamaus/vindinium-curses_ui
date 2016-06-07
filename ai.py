@@ -11,6 +11,8 @@ import json
 import random
 import numpy
 import mapConverter
+from reflexai import ReflexAI
+from expectimaxai import ExpectiMaxAI
 from collections import deque
 from mapConverter import MapConverter
 from game import Game
@@ -27,6 +29,7 @@ class AI:
     """Pure random A.I, you may NOT use it to win ;-)"""
     def __init__(self):
         self.prev_game = None
+        self.ai_helper = ExpectiMaxAI()
         self.net = convNet.ConvNet()
         self.net_move_probability = 0.7
         self.transitions = deque()
@@ -38,6 +41,7 @@ class AI:
 
     def process(self, game):
         """Do whatever you need with the Game object game"""
+        self.ai_helper.process(game)
         self.game = game
         map = MapConverter.convertMap(self.game)
         self.state = self.pad_map(map)
@@ -102,7 +106,7 @@ class AI:
         ]
 
         if (len(self.transitions) < convNet.TRAINING_BATCH_SIZE) or forced_exploration:
-            self.hero_move = random.choice(self._dirs)
+            self.hero_move = self.ai_helper.decide()[3]
             action_description = "explore"
         else:
             self.hero_move = self._dirs[dirWeights.argmax(0)]
