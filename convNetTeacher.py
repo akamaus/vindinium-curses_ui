@@ -5,13 +5,11 @@ class ConvNetTeacherAI:
     def __init__(self):
         self.p = None
 
-
     def process(self, game):
         """Do whatever you need with the Game object game"""
         self.game = game
-        if self.p is None:
-            map = MapConverter.convertMap(self.game)
-            self.p = Pathfinder(map)
+        map = MapConverter.convertMap(self.game)
+        self.p = Pathfinder(map)
 
     def decide(self):
         actions = ['mine', 'tavern', 'fight']
