@@ -113,6 +113,28 @@ class Curses_ui_bot:
         if isinstance(self.ai, AI):
             self.ai.post_process(print_debug)
 
+    def flush(self):
+        self.running = True
+        self.state = {}
+        self.game = None
+        self.last_mine_count = 0
+        self.last_gold = 0
+        self.last_life = 0
+        self.hero_move = None
+        self.hero_last_move = None
+        self.action = None
+        self.last_action = None
+        self.path_to_goal = []
+        self.decision = []
+        self.nearest_enemy_pos = None
+        self.nearest_mine_pos = None
+        self.nearest_tavern_pos = None
+        self.last_nearest_enemy_pos = None
+        self.last_nearest_mine_pos = None
+        self.last_nearest_tavern_pos = None
+        self.last_pos = None
+
+
 if __name__ == "__main__":
     with open('exampleMap.json') as data_file:
         data = json.load(data_file)

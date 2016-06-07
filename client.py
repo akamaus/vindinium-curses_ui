@@ -313,8 +313,7 @@ class Client:
         # Delete prévious game states
         self.states = []
         # Restart game with brand new bot
-        prev_bot = self.bot
-        self.bot = Curses_ui_bot(self.ai_type, prev_bot.transitions)
+        self.bot.flush()
         # Default move is no move !
         direction = "Stay"
         # Create a requests session that will be used throughout the game
