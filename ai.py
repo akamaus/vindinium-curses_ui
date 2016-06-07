@@ -11,8 +11,10 @@ import json
 import random
 import numpy
 import mapConverter
+from randomai import RandomAI
 from reflexai import ReflexAI
 from expectimaxai import ExpectiMaxAI
+from convNetTeacher import ConvNetTeacherAI
 from collections import deque
 from mapConverter import MapConverter
 from game import Game
@@ -29,7 +31,7 @@ class AI:
     """Pure random A.I, you may NOT use it to win ;-)"""
     def __init__(self):
         self.prev_game = None
-        self.ai_helper = ExpectiMaxAI()
+        self.ai_helper = ConvNetTeacherAI()
         self.net = convNet.ConvNet()
         self.net_move_probability = 0.7
         self.transitions = deque()
@@ -101,7 +103,7 @@ class AI:
             ("East", UI_FORMATTING_STRING % dirWeights[1]),
             ("South", UI_FORMATTING_STRING % dirWeights[2]),
             ("West", UI_FORMATTING_STRING % dirWeights[3]),
-            ("Stay", UI_FORMATTING_STRING % dirWeights[4])
+            ("Stay", UI_FORMATTING_STRING % dirWeights[4]),
             ("DB_Size", len(self.transitions))
         ]
 
@@ -138,7 +140,7 @@ class AI:
         self.prev_action[self._dirs.index(self.hero_move)] = 1
 
         if (self.step_counter % TRAIN_EVERY_X_STEPS == 0) and len(self.transitions) > convNet.TRAINING_BATCH_SIZE:
-            print_debug("Training ...")
+            # print_debug("Training ...")
             self.net.trainNetwork(self.transitions)
 
     def _calculate_reward(self):
