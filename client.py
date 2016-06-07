@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import requests
+from collections import deque
 from bot import Curses_ui_bot
 import ui
 import sys
@@ -35,7 +36,7 @@ class Client:
         self.running = True
         self.game_url = None
         self.config = Config()
-        self.bot = Curses_ui_bot(self.ai_type)  # Our bot
+        self.bot = Curses_ui_bot(self.ai_type, deque())  # Our bot
         self.states = []
         self.delay = 0.5  # Delay in s between turns in replay mode
         self.victory = 0
@@ -202,7 +203,7 @@ class Client:
 
     def start_ui(self, choice = '0'):
         """Start the curses UI"""
-        self.bot = Curses_ui_bot(self.ai_type)
+        self.bot = Curses_ui_bot(self.ai_type, deque())
         self.running = True
         self.game_url = None
         self.states = []
@@ -270,7 +271,7 @@ class Client:
         """Play all games"""
         self.victory = 0
         self.time_out = 0
-        self.bot = Curses_ui_bot(self.ai_type)
+        self.bot = Curses_ui_bot(self.ai_type, deque())
         for i in range(self.config.number_of_games):
             # start a new game
             if self.bot.running:
@@ -292,7 +293,7 @@ class Client:
     def replay(self):
         """Replay last game"""
         # Restart with a new bot
-        self.bot = Curses_ui_bot(self.ai_type)
+        self.bot = Curses_ui_bot(self.ai_type, deque())
         for i in range(self.config.number_of_games):
             # start a new game
             if self.bot.running:
@@ -312,7 +313,8 @@ class Client:
         # Delete prévious game states
         self.states = []
         # Restart game with brand new bot
-        # self.bot = Curses_ui_bot(self.ai_type)
+        prev_bot = self.bot
+        self.bot = Curses_ui_bot(self.ai_type, prev_bot.transitions)
         # Default move is no move !
         direction = "Stay"
         # Create a requests session that will be used throughout the game

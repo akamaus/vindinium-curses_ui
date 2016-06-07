@@ -3,6 +3,8 @@
 from __future__ import print_function
 import json
 from collections import deque
+
+from convNetTeacher import ConvNetTeacherAI
 from game import Game
 from ai import AI
 from randomai import RandomAI
@@ -16,7 +18,7 @@ ACTIONS = ["Go mine", "Go beer", "Go enemy"]
 
 class Curses_ui_bot:
     """THis is your bot"""
-    def __init__(self, ai_type):
+    def __init__(self, ai_type, transitions):
         self.ai = RandomAI()
         self.running = True
         self.state = {}
@@ -37,10 +39,10 @@ class Curses_ui_bot:
         self.last_nearest_mine_pos = None
         self.last_nearest_tavern_pos = None
         self.last_pos = None
+        self.transitions = transitions
         # The A.I, Skynet's rising !
         if ai_type.startswith('tf'):
             self.ai = AI()
-            self.transitions = deque()
             self.ai.transitions = self.transitions
         elif ai_type.startswith('reflex'):
             self.ai = ReflexAI()
@@ -116,7 +118,7 @@ if __name__ == "__main__":
         data = json.load(data_file)
     gameobj = Game(data)
 
-    bot = Curses_ui_bot('tf')
+    bot = Curses_ui_bot('tf', deque())
     for i in range(250):
         answer = bot.move(data)
         bot.post_process(print)
