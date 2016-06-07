@@ -108,7 +108,9 @@ class AI:
         ]
 
         if (len(self.transitions) < convNet.TRAINING_BATCH_SIZE) or forced_exploration:
-            self.hero_move = self.ai_helper.decide()[3]
+            aihelp = self.ai_helper.decide()
+            self.hero_move = aihelp[3]
+            path_to_goal = aihelp[0]
             action_description = "explore"
         else:
             self.hero_move = self._dirs[dirWeights.argmax(0)]
