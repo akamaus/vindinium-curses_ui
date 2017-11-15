@@ -15,19 +15,21 @@ MIN_COLS = 150
 
 class tui:
     """The Terminal User Interface for Vindimium bot"""
-    def __init__(self):
+    def __init__(self, num_players=3):
         self.running = True
         self.paused = False
         self.DATA_Y = 1
         self.DATA_X = 0
         self.DATA_H = 29
         self.DATA_W = 32
+        self.num_players = num_players
         self.PLAYERS_Y = 1
         self.PLAYERS_X = self.DATA_X + self.DATA_W + 2
         self.PLAYERS_H = 21
-        self.PLAYERS_W = 66
+        self.PLAYER_W = 18
+        self.PLAYERS_W_CALC = 11 + self.num_players * self.PLAYER_W + 1
         self.MAP_Y = 1
-        self.MAP_X = self.PLAYERS_X + self.PLAYERS_W + 2
+        self.MAP_X = self.PLAYERS_X + self.PLAYERS_W_CALC + 2
         self.MAP_H = 0
         self.MAP_W = 0
         self.PATH_Y = self.PLAYERS_Y + self.PLAYERS_H + 3
@@ -37,7 +39,7 @@ class tui:
         self.LOG_Y = self.DATA_Y + self.DATA_H + 2
         self.LOG_X = 0
         self.LOG_H = 12
-        self.LOG_W = self.DATA_W + self.PLAYERS_W + 2
+        self.LOG_W = self.DATA_W + self.PLAYERS_W_CALC + 2
         self.HELP_Y = self.LOG_Y + self.LOG_H - 2
         self.HELP_X = 1
         self.HELP_H = 1
@@ -127,7 +129,8 @@ class tui:
         self.stdscr.addstr(self.PLAYERS_Y - 1, self.PLAYERS_X + 1, "Players", curses.A_BOLD)
         self.stdscr.addstr(self.SUMMARY_Y - 1, self.SUMMARY_X + 1, "Games summary", curses.A_BOLD)
         self.stdscr.noutrefresh()
-        self.data_win.noutrefresh()
+        if self.data_win:
+            self.data_win.noutrefresh()
         if self.map_win:
             self.map_win.noutrefresh()
         if self.path_win:
@@ -238,7 +241,7 @@ class tui:
     def draw_players_win(self):
         """Draw players window"""
         self.stdscr.addstr(self.PLAYERS_Y - 1, self.PLAYERS_X + 1, "Players", curses.A_BOLD)
-        self.players_win = curses.newwin(self.PLAYERS_H, self.PLAYERS_W, self.PLAYERS_Y, self.PLAYERS_X)
+        self.players_win = curses.newwin(self.PLAYERS_H, self.PLAYERS_W_CALC, self.PLAYERS_Y, self.PLAYERS_X)
         self.players_win.box()
         self.players_pan = curses.panel.new_panel(self.players_win)
         players_lines = ["Name",
@@ -252,25 +255,25 @@ class tui:
                         "Spawn pos",
                         "Crashed"]
 
+
         self.players_win.vline(1, 11, curses.ACS_VLINE, self.PLAYERS_H-2)
-        self.players_win.vline(1, 29, curses.ACS_VLINE, self.PLAYERS_H-2)
-        self.players_win.vline(1, 47, curses.ACS_VLINE, self.PLAYERS_H-2)
         self.players_win.addch(0, 11, curses.ACS_TTEE)
-        self.players_win.addch(0, 29, curses.ACS_TTEE)
-        self.players_win.addch(0, 47, curses.ACS_TTEE)
         self.players_win.addch(self.PLAYERS_H-1, 11, curses.ACS_BTEE)
-        self.players_win.addch(self.PLAYERS_H-1, 29, curses.ACS_BTEE)
-        self.players_win.addch(self.PLAYERS_H-1, 47, curses.ACS_BTEE)
+        for pi in range(self.num_players):
+            x = 11 + pi*self.PLAYER_W
+            self.players_win.vline(1, x, curses.ACS_VLINE, self.PLAYERS_H - 2)
+            self.players_win.addch(self.PLAYERS_H-1, x, curses.ACS_BTEE)
+
         y = 0
         for line in players_lines:
             self.players_win.addstr(y+1, 1, line, curses.A_BOLD)
             if y < len(players_lines)*2 - 2:
-                self.players_win.hline(y + 2, 1, curses.ACS_HLINE, self.PLAYERS_W - 2)
+                self.players_win.hline(y + 2, 1, curses.ACS_HLINE, self.PLAYERS_W_CALC - 2)
                 self.players_win.addch(y + 2, 0, curses.ACS_LTEE)
-                self.players_win.addch(y + 2, 11, curses.ACS_PLUS)
-                self.players_win.addch(y + 2, 29, curses.ACS_PLUS)
-                self.players_win.addch(y + 2, 47, curses.ACS_PLUS)
-                self.players_win.addch(y + 2, self.PLAYERS_W-1, curses.ACS_RTEE)
+                for pi in range(self.num_players-1):
+                    x = 11 + (pi + 1) * self.PLAYER_W
+                    self.players_win.addch(y + 2, x, curses.ACS_PLUS)
+                self.players_win.addch(y + 2, self.PLAYERS_W_CALC-1, curses.ACS_RTEE)
             y += 2
 
     def draw_time_win(self):
