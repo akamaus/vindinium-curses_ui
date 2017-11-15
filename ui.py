@@ -346,7 +346,7 @@ class tui:
                 attr = 0
                 if char == "#":
                     attr = 0
-                    char = curses.ACS_CKBOARD
+                    #char = curses.ACS_CKBOARD
                 elif char == "$":
                     attr = curses.A_BOLD + curses.color_pair(4)
                 elif char == "T":
@@ -369,8 +369,9 @@ class tui:
                     attr = curses.A_BOLD + curses.color_pair(2)
                 elif char == "X":
                     attr = curses.A_BOLD + curses.color_pair(7)
-                if not (char == " " and (y, x in path)):
-                    self.map_win.addch(y + 1, x + 1, char, attr)
+                if isinstance(char, str):
+                    char = ord(char)
+                self.map_win.addch(y + 1, x + 1, char, attr)
                 x = x + 1
             y = y + 1
 
