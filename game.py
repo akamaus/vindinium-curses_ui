@@ -50,8 +50,10 @@ class Game:
 
     def process_data(self, state):
         """Parse the game state"""
-        self.set_url(state['viewUrl'])
-        self.process_hero(state['hero'])
+        if 'viewUrl' in state:
+            self.set_url(state['viewUrl'])
+        if 'hero' in state:
+            self.process_hero(state['hero'])
         self.process_game(state['game'])
 
     def set_url(self, url):
@@ -98,7 +100,7 @@ class Game:
                     char = "$"
                     self.mines_locs.append(tile_coords)
                     self.mines[tile_coords] = tile[1]
-                    if tile[1] == str(self.hero.bot_id):
+                    if self.hero is not None and tile[1] == str(self.hero.bot_id):
                         # This mine is belong to me:-)
                         self.hero.mines.append(tile_coords)
                 elif tile[0] == "[":
@@ -108,7 +110,7 @@ class Game:
                 elif tile[0] == "@":
                     # It's a hero
                     char = "H"
-                    if not int(tile[1]) == self.hero.bot_id:
+                    if self.hero is None or not int(tile[1]) == self.hero.bot_id:
                         # I don't want to be put in an array !
                         # I'm not a number, i'm a free bot:-)
                         self.heroes_locs.append(tile_coords)
