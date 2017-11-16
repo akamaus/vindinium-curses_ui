@@ -149,6 +149,18 @@ class tui:
             self.menu_win.noutrefresh()
         curses.doupdate()
 
+# - Some preferences --------------------------------------------------
+
+    def hero_color(self, hero_bot_id):
+        """ Returns a color attribute for a bot"""
+        color_map = {1: curses.A_BOLD + curses.color_pair(6),
+                     2: curses.A_BOLD + curses.color_pair(8),
+                     3: curses.A_BOLD + curses.color_pair(9),
+                     4: curses.A_BOLD + curses.color_pair(10)}
+        if hero_bot_id in color_map:
+            return color_map[hero_bot_id]
+        else:
+            raise ValueError("Unknown hero")
 
 # - Draw game windows --------------------------------------------------
 
@@ -343,6 +355,7 @@ class tui:
         for line in board_map:
             x = 0
             for char in line:
+                tile = (y, x)
                 attr = 0
                 if char == "#":
                     attr = 0
@@ -356,15 +369,8 @@ class tui:
                     attr = curses.A_BOLD + curses.color_pair(6)
                     for hero in heroes:
                         # Select color for bot (cost cpu time)
-                        if hero.pos == (y, x):
-                            if hero.bot_id == 1:
-                                attr = curses.A_BOLD + curses.color_pair(6)
-                            elif hero.bot_id == 2:
-                                attr = curses.A_BOLD + curses.color_pair(8)
-                            elif hero.bot_id == 3:
-                                attr = curses.A_BOLD + curses.color_pair(9)
-                            elif hero.bot_id == 4:
-                                attr = curses.A_BOLD + curses.color_pair(10)
+                        if hero.pos == tile:
+                            attr = self.hero_color(hero.bot_id)
                 elif char == "@":
                     attr = curses.A_BOLD + curses.color_pair(2)
                 elif char == "X":
@@ -396,14 +402,7 @@ class tui:
                 for i in range(1, 21, 2):
                     # Clear player tab
                     self.players_win.hline(i, x, " ", 17)
-                if hero.bot_id == 1:
-                    attr = curses.A_BOLD + curses.color_pair(6)
-                elif hero.bot_id == 2:
-                    attr = curses.A_BOLD + curses.color_pair(8)
-                elif hero.bot_id == 3:
-                    attr = curses.A_BOLD + curses.color_pair(9)
-                elif hero.bot_id == 4:
-                    attr = curses.A_BOLD + curses.color_pair(10)
+                attr = self.hero_color(hero.bot_id)
                 self.players_win.addstr(1, x, str(hero.name[0:17]), attr)
                 self.players_win.addstr(3, x, str(hero.user_id))
                 self.players_win.addstr(5, x, str(hero.bot_id))
