@@ -317,7 +317,7 @@ class tui:
 
 # MAP ------------------------------------------------------------------
 
-    def draw_map(self, board_map, path, heroes):
+    def draw_map(self, board_map, path, heroes, mines=None):
         """Draw the map"""
         board_size = len(board_map)
         self.MAP_H = board_size
@@ -362,6 +362,10 @@ class tui:
                     #char = curses.ACS_CKBOARD
                 elif char == "$":
                     attr = curses.A_BOLD + curses.color_pair(4)
+                    if mines is not None and tile in mines:
+                        m_bot = mines[tile]
+                        if m_bot != '-':
+                            attr = self.hero_color(int(m_bot))
                 elif char == "T":
                     attr = curses.A_BOLD + curses.color_pair(5)
                 elif char == "H":

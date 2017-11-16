@@ -27,7 +27,7 @@ def replay(args):
             state = json.loads(line)
             g = Game({'game': state})
 
-            gui.draw_map(g.board_map, path=None, heroes=g.heroes)
+            gui.draw_map(g.board_map, path=None, heroes=g.heroes, mines=g.mines)
             gui.display_heroes(g.heroes, bot_id=None)
 
             gui.refresh()
