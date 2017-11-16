@@ -151,14 +151,16 @@ class tui:
 
 # - Some preferences --------------------------------------------------
 
-    def hero_color(self, hero_bot_id):
+    def hero_color(self, bot_id, hero=None):
         """ Returns a color attribute for a bot"""
         color_map = {1: curses.A_BOLD + curses.color_pair(6),
                      2: curses.A_BOLD + curses.color_pair(8),
                      3: curses.A_BOLD + curses.color_pair(9),
                      4: curses.A_BOLD + curses.color_pair(10)}
-        if hero_bot_id in color_map:
-            return color_map[hero_bot_id]
+        if hero is not None and bot_id == hero.bot_id:
+            return curses.color_pair(2)
+        elif bot_id in color_map:
+            return color_map[bot_id]
         else:
             raise ValueError("Unknown hero")
 
@@ -317,7 +319,7 @@ class tui:
 
 # MAP ------------------------------------------------------------------
 
-    def draw_map(self, board_map, path, heroes, mines=None):
+    def draw_map(self, board_map, path, heroes, mines=None, main_hero=None):
         """Draw the map"""
         board_size = len(board_map)
         self.MAP_H = board_size
@@ -365,7 +367,8 @@ class tui:
                     if mines is not None and tile in mines:
                         m_bot = mines[tile]
                         if m_bot != '-':
-                            attr = self.hero_color(int(m_bot))
+                            attr = self.hero_color(int(m_bot), hero=main_hero)
+
                 elif char == "T":
                     attr = curses.A_BOLD + curses.color_pair(5)
                 elif char == "H":
