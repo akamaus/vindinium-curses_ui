@@ -72,6 +72,10 @@ class ArrayMap:
             self.state[pos[0], pos[1], self.OWNING_LAYER] = int(owner)
             self.state[pos[0], pos[1], self.RELATION_LAYER] = self.relOwnersDict[owner]
 
+    def is_passable(self, p):
+        obj = self.get(p)
+        return obj == ArrayMap.EMPTY or obj == ArrayMap.SPAWNPOINT
+
     def get(self, p):
         return self.state[p[0], p[1], ArrayMap.OBJECTS_LAYER]
 
