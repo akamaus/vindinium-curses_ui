@@ -9,21 +9,27 @@ from game import Game
 class TestDataStructures(TestCase):
     def test_arraymap_conversion(self):
         with open('test/exampleMap.json', 'r') as f:
-           state = json.load(f)
-           g = Game(state)
-           am = ArrayMap(g)
+            state = json.load(f)
+            g = Game(state)
+            am = ArrayMap(g)
 
-           obj, own = am.get(3, 7)
-           self.assertEqual(obj, ArrayMap.MINE)
-           self.assertEqual(own, ArrayMap.OWNED)
+            obj, rel = am.get_rel(3, 7)
+            _, own = am.get_abs(3, 7)
+            self.assertEqual(obj, ArrayMap.MINE)
+            self.assertEqual(rel, ArrayMap.OWNED)
+            self.assertEqual(own, int(g.hero.bot_id))
 
-           obj, own = am.get(5, 6)
-           self.assertEqual(obj, ArrayMap.HERO)
-           self.assertEqual(own, ArrayMap.MASTER)
+            obj, rel = am.get_rel(5, 6)
+            _, own = am.get_abs(5, 6)
+            self.assertEqual(obj, ArrayMap.HERO)
+            self.assertEqual(rel, ArrayMap.MASTER)
+            self.assertEqual(own, 1)
 
-           obj, own = am.get(12, 11)
-           self.assertEqual(obj, ArrayMap.HERO)
-           self.assertEqual(own, ArrayMap.ENEMY)
+            obj, rel = am.get_rel(12, 11)
+            _, own = am.get_abs(12, 11)
+            self.assertEqual(obj, ArrayMap.HERO)
+            self.assertEqual(rel, ArrayMap.ENEMY)
+            self.assertEqual(own, 3)
 
 
 
