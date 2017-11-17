@@ -72,12 +72,11 @@ class ArrayMap:
             self.state[pos[0], pos[1], self.OWNING_LAYER] = int(owner)
             self.state[pos[0], pos[1], self.RELATION_LAYER] = self.relOwnersDict[owner]
 
-    def get_obj(self, y, x):
-        return self.state[y, x, ArrayMap.OBJECTS_LAYER]
+    def get(self, p):
+        return self.state[p[0], p[1], ArrayMap.OBJECTS_LAYER]
 
-    def get_rel(self, y, x):
-        return self.state[y, x, ArrayMap.OBJECTS_LAYER], self.state[y, x, ArrayMap.RELATION_LAYER]
+    def get_rel(self, p):
+        return self.state[p[0], p[1], ArrayMap.OBJECTS_LAYER], self.state[p[0], p[1], ArrayMap.RELATION_LAYER]
 
-    def get_abs(self, y, x):
-        return self.state[y, x, ArrayMap.OBJECTS_LAYER], self.state[y, x, ArrayMap.OWNING_LAYER]
-
+    def get_abs(self, p):
+        return self.state[p[0], p[1], ArrayMap.OBJECTS_LAYER], self.state[p[0], p[1], ArrayMap.OWNING_LAYER]
