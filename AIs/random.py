@@ -100,5 +100,5 @@ class AI:
                 nearest_tavern_pos)
 
 
-if __name__ == "__main__":
-    pass
+def init():
+    return AI()

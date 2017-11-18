@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 
 
+from AIs import random
 from game import Game
-import ai
-
 
 DIRS = ["North", "East", "South", "West", "Stay"]
 ACTIONS = ["Go mine", "Go beer", "Go enemy"]
@@ -12,7 +11,7 @@ ACTIONS = ["Go mine", "Go beer", "Go enemy"]
 
 class Curses_ui_bot:
     """THis is your bot"""
-    def __init__(self):
+    def __init__(self, ai_logic=None):
         self.running = True
         self.state = {}
         self.game = None
@@ -33,12 +32,15 @@ class Curses_ui_bot:
         self.last_nearest_tavern_pos = None
         self.last_pos = None
         # The A.I, Skynet's rising !
-        self.ai = ai.AI()
+        if random is None:
+            self.ai = random.AI()
+        else:
+            self.ai = ai_logic
 
     def move(self, state):
         """Return store data provided by A.I
         and return selected move"""
-        self.state = state        
+        self.state = state
         # Store status for later report
         try:
             self.hero_last_move = self.hero_move
@@ -54,7 +56,7 @@ class Curses_ui_bot:
             # First move has no previous move
             pass
         self.game = Game(self.state)
-        
+
         ################################################################
         # Put your call to AI code here
         ################################################################
@@ -90,4 +92,4 @@ class Curses_ui_bot:
             # First move has no previous move and no game
             pass
         self.game = Game(self.state)
-        
+
